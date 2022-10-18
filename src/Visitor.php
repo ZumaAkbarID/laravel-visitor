@@ -89,7 +89,7 @@ class Visitor implements UserAgentParser
      *
      * @return array
      */
-    public function request() : array
+    public function request(): array
     {
         return $this->request->all();
     }
@@ -99,7 +99,7 @@ class Visitor implements UserAgentParser
      *
      * @return string|null
      */
-    public  function ip() : ?string
+    public  function ip(): ?string
     {
         return $this->request->ip();
     }
@@ -109,7 +109,7 @@ class Visitor implements UserAgentParser
      *
      * @return string
      */
-    public function url() : string
+    public function url(): string
     {
         return $this->request->fullUrl();
     }
@@ -119,7 +119,7 @@ class Visitor implements UserAgentParser
      *
      * @return string|null
      */
-    public function referer() : ?string
+    public function referer(): ?string
     {
         return $_SERVER['HTTP_REFERER'] ?? null;
     }
@@ -129,7 +129,7 @@ class Visitor implements UserAgentParser
      *
      * @return string
      */
-    public function method() : string
+    public function method(): string
     {
         return $this->request->getMethod();
     }
@@ -139,7 +139,7 @@ class Visitor implements UserAgentParser
      *
      * @return array
      */
-    public function httpHeaders() : array
+    public function httpHeaders(): array
     {
         return $this->request->headers->all();
     }
@@ -149,7 +149,7 @@ class Visitor implements UserAgentParser
      *
      * @return string
      */
-    public function userAgent() : string
+    public function userAgent(): string
     {
         return $this->request->userAgent() ?? '';
     }
@@ -161,7 +161,7 @@ class Visitor implements UserAgentParser
      *
      * @throws \Exception
      */
-    public function device() : string
+    public function device(): string
     {
         return $this->getDriverInstance()->device();
     }
@@ -173,7 +173,7 @@ class Visitor implements UserAgentParser
      *
      * @throws \Exception
      */
-    public function platform() : string
+    public function platform(): string
     {
         return $this->getDriverInstance()->platform();
     }
@@ -185,7 +185,7 @@ class Visitor implements UserAgentParser
      *
      * @throws \Exception
      */
-    public function browser() : string
+    public function browser(): string
     {
         return $this->getDriverInstance()->browser();
     }
@@ -197,7 +197,7 @@ class Visitor implements UserAgentParser
      *
      * @throws \Exception
      */
-    public function languages() : array
+    public function languages(): array
     {
         return $this->getDriverInstance()->languages();
     }
@@ -221,7 +221,7 @@ class Visitor implements UserAgentParser
      *
      * @return Model|null
      */
-    public function getVisitor() : ?Model
+    public function getVisitor(): ?Model
     {
         return $this->visitor;
     }
@@ -233,9 +233,15 @@ class Visitor implements UserAgentParser
      */
     public function visit(Model $model = null)
     {
-        if(in_array($this->request->path(), $this->except)){
+        if (in_array($this->request->path(), $this->except)) {
             return;
-        }  
+        }
+
+        $minus10minutes = strtotime(date('Y-m-d H:i:s')) - (10 * 60);
+        $checkIP = PublicVisitor::where(['ip' => $this->ip()])->where('created_at', '>=', date('Y-m-d H:i:s', $minus10minutes))->count();
+        if (!is_null($checkIP)) {
+            return;
+        }
 
         $data = $this->prepareLog();
 
@@ -289,7 +295,7 @@ class Visitor implements UserAgentParser
      *
      * @throws \Exception
      */
-    protected function prepareLog() : array
+    protected function prepareLog(): array
     {
         return [
             'method' => $this->method(),
@@ -304,7 +310,7 @@ class Visitor implements UserAgentParser
             'browser' => $this->browser(),
             'ip' => $this->ip(),
             'visitor_id' => $this->getVisitor() ? $this->getVisitor()->id : null,
-            'visitor_type' => $this->getVisitor() ? get_class($this->getVisitor()): null
+            'visitor_type' => $this->getVisitor() ? get_class($this->getVisitor()) : null
         ];
     }
 
