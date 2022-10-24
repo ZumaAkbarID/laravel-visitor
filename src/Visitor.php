@@ -238,8 +238,9 @@ class Visitor implements UserAgentParser
         }
 
         $minus10minutes = strtotime(date('Y-m-d H:i:s')) - (10 * 60);
-        $checkIP = PublicVisitor::where(['ip' => $this->ip()])->where('created_at', '>=', date('Y-m-d H:i:s', $minus10minutes))->count();
-        if (!is_null($checkIP)) {
+        $checkIP = PublicVisitor::where(['url' => URL::full()])->where(['ip' => $this->ip()])->where('created_at', '>=', date('Y-m-d H:i:s', $minus10minutes))->count();
+
+        if ($checkIP) {
             return;
         }
 
